@@ -15,7 +15,7 @@ app.set("view engine","ejs");
 app.use(bodyParser.urlencoded({extended:true}));
 
 //*** SOCKET CONNECTIONS ***/
-mongoose.connect(`${process.env.URI}/${process.env.DB_USER}`,{useNewUrlParser:true, useUnifiedTopology:true}).catch((err)=>{console.log(err)});
+mongoose.connect(`${process.env.REMOTE_URI}`,{useNewUrlParser:true, useUnifiedTopology:true}).catch((err)=>{console.log(err)});
 const port = process.env.PORT_LOCAL || process.env.PORT; // Obtain port from .env file note PORT defaults with Heroku environment
 app.listen(port,console.log(`Server Started: ${port}`));
 
@@ -45,7 +45,7 @@ app.get("/login",(req,res)=>{
 
 app.post("/login",(req,res)=>{
     const username = req.body.username;
-    const password = req.body.password;
+    const password = md5(req.body.password);
 
     User.findOne({email:username},(err,found)=>{
         if(!found) {
@@ -54,7 +54,7 @@ app.post("/login",(req,res)=>{
             if(found && found.password === password) {
                 res.render("secrets");
             } else {
-                res.send("Wrong password");
+                res.send("Wrong password!");
             }
         }
     });
