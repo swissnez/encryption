@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema({
 const User = new mongoose.model("User",userSchema);
 
 
+bcrypt.genSalt(10,(err,salt)=>{
+    bcrypt.hash("@mickey1999wowWOW",10,(err,hash)=>{
+        if(!err) {
+            console.log(hash);
+        }
+    });
+});
+
 
 
 //*** ROUTES ***
