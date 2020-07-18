@@ -31,15 +31,24 @@ const userSchema = new mongoose.Schema({
 const User = new mongoose.model("User",userSchema);
 
 
-bcrypt.genSalt(10,(err,salt)=>{
-    bcrypt.hash("@mickey1999wowWOW",10,(err,hash)=>{
-        if(!err) {
-            console.log(hash);
-        }
+const crypt =()=>{
+    bcrypt.genSalt(10,(err,salt)=>{
+        let hash = 0;
+        bcrypt.hash("@mickey1999wowWOW",10,(err,hash)=>{
+            if(!err) {
+                console.log(hash);
+            }
+            return hash;
+        });
+        return hash;
     });
+};
+
+const result = crypt();
+
+bcrypt.compare("@mickey1999wowWOW",crypt(),(err,result)=>{
+    return result;
 });
-
-
 
 //*** ROUTES ***
 
