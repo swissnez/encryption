@@ -5,7 +5,8 @@ const express = require("express"),
 bodyParser = require("body-parser"),
 ejs =  require("ejs"),
 mongoose = require("mongoose"),
-encrypt = require("mongoose-encryption");
+encrypt = require("mongoose-encryption"),
+bcrypt = require("bcrypt");
 
 
 const app = express();
