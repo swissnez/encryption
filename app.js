@@ -7,7 +7,7 @@ ejs =  require("ejs"),
 mongoose = require("mongoose"),
 encrypt = require("mongoose-encryption"),
 bcrypt = require("bcrypt");
-
+const saltRounds = 10;
 
 const app = express();
 
@@ -30,26 +30,6 @@ const userSchema = new mongoose.Schema({
 
 const User = new mongoose.model("User",userSchema);
 
-
-const crypt =()=>{
-    bcrypt.genSalt(10,(err,salt)=>{
-        let hash = 0;
-        bcrypt.hash("@mickey1999wowWOW",10,(err,hash)=>{
-            if(!err) {
-                console.log(hash);
-            }
-            return hash;
-        });
-        return hash;
-    });
-};
-
-const result = crypt();
-
-bcrypt.compare("@mickey1999wowWOW",crypt(),(err,result)=>{
-    return result;
-});
-
 //*** ROUTES ***
 
 
@@ -63,20 +43,26 @@ app.get("/login",(req,res)=>{
 
 app.post("/login",(req,res)=>{
     const username = req.body.username;
-    const password = md5(req.body.password);
+    const password = req.body.password;
 
     User.findOne({email:username},(err,found)=>{
         if(!found) {
             res.send("account doesn't exist");
         } else {
-            if(found && found.password === password) {
-                res.render("secrets");
-            } else {
-                res.send("Wrong password!");
-            }
+            if(found) {
+                bcrypt.compare(password,found.password,(err,result)=>{
+                    if(result === true) {
+                        console.log(found);
+                        res.render("secrets");
+                    } else {
+                        res.send("Wrong password!");
+                    }
+                });
+            } 
         }
     });
 });
+
 
 
 app.route("/register")
@@ -84,16 +70,21 @@ app.route("/register")
         res.render("register");
     })
     .post((req,res)=>{
-        const newUser = new User({
-            email: req.body.username,
-            password: md5(req.body.password)
+        const username = req.body.username;
+        const password = req.body.password;
+
+        bcrypt.hash(password,saltRounds,(err,hash)=>{
+            const newUser = new User({
+                email: username,
+                password: hash
+            });
+            newUser.save((err)=>{
+                if(!err) {
+                    res.render("secrets");
+                }
+            });
         });
-        newUser.save((err)=>{
-            if(!err) {
-                console.log("Saved");
-                res.render("secrets");
-            }
-        });
+        
     });
 
 
