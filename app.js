@@ -28,6 +28,8 @@ app.use(session({
     saveUninitialized: false
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
 
 //*** SOCKET CONNECTIONS ***/
 mongoose.connect(`${process.env.REMOTE_URI}`,{useNewUrlParser:true, useUnifiedTopology:true}).catch((err)=>{console.log(err)});
@@ -40,9 +42,15 @@ const userSchema = new mongoose.Schema({
     password: String
 });
 
+userSchema.plugin(passportLocalMongoose);
 //userSchema.plugin(encrypt,{secret:process.env.SECRET,encryptedFields: ['password']});
 
 const User = new mongoose.model("User",userSchema);
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
 
 //*** ROUTES ***
 
