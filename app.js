@@ -7,13 +7,27 @@ ejs =  require("ejs"),
 mongoose = require("mongoose"),
 encrypt = require("mongoose-encryption"),
 bcrypt = require("bcrypt");
-const saltRounds = 10;
+const saltRounds = 10; //used with bcrypt
+
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
+
 
 const app = express();
 
 app.use(express.static("public"));
 app.set("view engine","ejs");
 app.use(bodyParser.urlencoded({extended:true}));
+
+//Cookie session setup
+//*                    */
+app.use(session({
+    secret: "my little secret!",
+    resave: false,
+    saveUninitialized: false
+}));
+
 
 //*** SOCKET CONNECTIONS ***/
 mongoose.connect(`${process.env.REMOTE_URI}`,{useNewUrlParser:true, useUnifiedTopology:true}).catch((err)=>{console.log(err)});
