@@ -11,7 +11,7 @@ const saltRounds = 10; //used with bcrypt
 
 const session = require("express-session");
 const passport = require("passport");
-const passportLocalMongoose = require("passport-local-mongoose");
+const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
 
 
 const app = express();
@@ -60,11 +60,14 @@ app.get("/",(req,res)=>{
     res.render("home");
 });
 
-app.get("/login",(req,res)=>{
-    res.render("login");
-});
 
-app.post("/login",(req,res)=>{
+app.route("/login")
+
+.get((req,res)=>{
+    res.render("login");
+})
+
+.post((req,res)=>{
     const username = req.body.username;
     const password = req.body.password;
 
@@ -86,6 +89,15 @@ app.post("/login",(req,res)=>{
     });
 });
 
+app.route("/secrets")
+
+    .get((req,res)=>{
+        if(req.isAuthenticated()) {
+            res.render("secrets"); 
+        } else {
+            res.redirect("/login");
+        }
+    });
 
 
 app.route("/register")
@@ -96,17 +108,28 @@ app.route("/register")
         const username = req.body.username;
         const password = req.body.password;
 
-        bcrypt.hash(password,saltRounds,(err,hash)=>{
-            const newUser = new User({
-                email: username,
-                password: hash
-            });
-            newUser.save((err)=>{
-                if(!err) {
-                    res.render("secrets");
-                }
-            });
+        User.register({username},password,(err,user)=>{
+            if(err) {
+                console.log(err);
+            } else {
+                passport.authenticate("local")(req,res,()=>{
+                    //res.redirect("/secrets");
+                    res.json(user);
+                });
+            }
         });
+
+        // bcrypt.hash(password,saltRounds,(err,hash)=>{
+        //     const newUser = new User({
+        //         email: username,
+        //         password: hash
+        //     });
+        //     newUser.save((err)=>{
+        //         if(!err) {
+        //             res.render("secrets");
+        //         }
+        //     });
+        // });
         
     });
 
