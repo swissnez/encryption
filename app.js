@@ -35,7 +35,7 @@ app.use(passport.session());
 mongoose.connect(`${process.env.REMOTE_URI}`,{useNewUrlParser:true, useUnifiedTopology:true}).catch((err)=>{console.log(err)});
 const port = process.env.PORT_LOCAL || process.env.PORT; // Obtain port from .env file note PORT defaults with Heroku environment
 app.listen(port,console.log(`Server Started: ${port}`));
-
+mongoose.set("useCreateIndex",true); // fixes issues with depreciation in console/debug
 
 const userSchema = new mongoose.Schema({
     email: String,
@@ -47,6 +47,7 @@ userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model("User",userSchema);
 
+passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
