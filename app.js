@@ -38,8 +38,8 @@ app.listen(port,console.log(`Server Started: ${port}`));
 mongoose.set("useCreateIndex",true); // fixes issues with depreciation in console/debug
 
 const userSchema = new mongoose.Schema({
-    email: String,
-    password: String
+    email: {type:String,required: true},
+    password: {type:String,required:true}
 });
 
 userSchema.plugin(passportLocalMongoose);
