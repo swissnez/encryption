@@ -75,8 +75,7 @@ app.route("/login")
         password: req.body.password
     });
     req.login(user,(err)=>{
-        if(err) {
-             console.err(err);
+        if(err) { console.err(err);
         } else {
             passport.authenticate("local")(req,res,()=>{
                 res.redirect("/secrets");
@@ -105,8 +104,7 @@ app.route("/login")
 app.route("/secrets")
 
     .get((req,res)=>{
-        if(req.isAuthenticated()) {
-            res.render("secrets"); 
+        if(req.isAuthenticated()) { res.render("secrets"); 
         } else {
             res.redirect("/login");
         }
@@ -149,6 +147,13 @@ app.route("/register")
         // });
         
     });
+
+    //*** LOGOUT ***/
+    app.route("/logout")
+        .get((req,res)=>{
+            req.logout();
+            res.redirect("/");
+        });
 
 
 
