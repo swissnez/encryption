@@ -74,23 +74,32 @@ app.route("/login")
         username: req.body.username,
         password: req.body.password
     });
-
-    User.findOne({email:user.username},(err,found)=>{
-        if(!found) {
-            res.send("account doesn't exist");
+    req.login(user,(err)=>{
+        if(err) {
+             console.err(err);
         } else {
-            if(found) {
-                bcrypt.compare(password,found.password,(err,result)=>{
-                    if(result === true) {
-                        console.log(found);
-                        res.render("secrets");
-                    } else {
-                        res.send("Wrong password!");
-                    }
-                });
-            } 
+            passport.authenticate("local")(req,res,()=>{
+                res.redirect("/secrets");
+            });
         }
     });
+    // User.findOne({email:user.username},(err,found)=>{
+    //     if(!found) {
+    //         console.log(user.username);
+    //         res.send("account doesn't exist");
+    //     } else {
+    //         if(found) {
+    //             bcrypt.compare(password,found.password,(err,result)=>{
+    //                 if(result === true) {
+    //                     console.log(found);
+    //                     res.render("secrets");
+    //                 } else {
+    //                     res.send("Wrong password!");
+    //                 }
+    //             });
+    //         } 
+    //     }
+    // });
 });
 
 app.route("/secrets")
@@ -109,10 +118,14 @@ app.route("/register")
         res.render("register");
     })
     .post((req,res)=>{
-        const username = req.body.username;
-        const password = req.body.password;
 
-        User.register({username},password,(err,user)=>{
+        const user = new User({
+            username: req.body.username,
+            password: req.body.password
+        });
+        
+
+        User.register({username:user.username},user.password,(err,user)=>{
             if(err) {
                 console.log(err);
             } else {
