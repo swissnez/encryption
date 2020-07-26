@@ -47,6 +47,7 @@ userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model("User",userSchema);
 
+
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -68,10 +69,13 @@ app.route("/login")
 })
 
 .post((req,res)=>{
-    const username = req.body.username;
-    const password = req.body.password;
+    
+    const user = new User({
+        username: req.body.username,
+        password: req.body.password
+    });
 
-    User.findOne({email:username},(err,found)=>{
+    User.findOne({email:user.username},(err,found)=>{
         if(!found) {
             res.send("account doesn't exist");
         } else {
