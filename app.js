@@ -9,6 +9,7 @@ encrypt = require("mongoose-encryption"),
 bcrypt = require("bcrypt");
 const saltRounds = 10; //used with bcrypt
 
+const User = require("./models/user");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
@@ -56,15 +57,17 @@ const port = process.env.PORT_LOCAL || process.env.PORT; // Obtain port from .en
 app.listen(port,console.log(`Server Started: ${port}`));
 mongoose.set("useCreateIndex",true); // fixes issues with depreciation in console/debug
 
-const userSchema = new mongoose.Schema({
-    email: {type:String,required: true},
-    password: {type:String,required:true}
-});
+//** SCHEMA / MODEL blueprint NOTE now imported via models/users.js  */
 
-userSchema.plugin(passportLocalMongoose);
-//userSchema.plugin(encrypt,{secret:process.env.SECRET,encryptedFields: ['password']});
+// const userSchema = new mongoose.Schema({
+//     email: {type:String,required: true},
+//     password: {type:String,required:true}
+// });
 
-const User = new mongoose.model("User",userSchema);
+// userSchema.plugin(passportLocalMongoose);
+// //userSchema.plugin(encrypt,{secret:process.env.SECRET,encryptedFields: ['password']});
+
+// const User = new mongoose.model("User",userSchema);
 
 
 passport.use(User.createStrategy());
