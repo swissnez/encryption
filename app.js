@@ -12,6 +12,7 @@ const saltRounds = 10; //used with bcrypt
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
+const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
 
 
 const app = express();
@@ -30,6 +31,24 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+passport.use(new GoogleStrategy({
+    clientID:     process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/google/secrets", // Authorised redirect URIs
+    passReqToCallback   : true,
+    userProfileURL: ""
+  },
+  function(request, accessToken, refreshToken, profile, done) {
+    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      return done(err, user);
+    });
+  }
+));
+
+
+
+
 
 //*** SOCKET CONNECTIONS ***/
 mongoose.connect(`${process.env.REMOTE_URI}`,{useNewUrlParser:true, useUnifiedTopology:true}).catch((err)=>{console.log(err)});
