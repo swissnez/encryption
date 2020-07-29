@@ -1,6 +1,6 @@
 //jshint esversion:6
 const mongoose = require("mongoose");
-const passportLocalMongoose = require("passport-local-mongoose");
+const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
 
 const UserSchema = new mongoose.Schema({
     email: {type:String,required: true},

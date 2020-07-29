@@ -12,7 +12,6 @@ const saltRounds = 10; //used with bcrypt
 const User = require("./models/user");
 const session = require("express-session");
 const passport = require("passport");
-const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
 const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
 
 
@@ -59,15 +58,7 @@ mongoose.set("useCreateIndex",true); // fixes issues with depreciation in consol
 
 //** SCHEMA / MODEL blueprint NOTE now imported via models/users.js  */
 
-// const userSchema = new mongoose.Schema({
-//     email: {type:String,required: true},
-//     password: {type:String,required:true}
-// });
-
-// userSchema.plugin(passportLocalMongoose);
 // //userSchema.plugin(encrypt,{secret:process.env.SECRET,encryptedFields: ['password']});
-
-// const User = new mongoose.model("User",userSchema);
 
 
 passport.use(User.createStrategy());
@@ -177,12 +168,3 @@ app.route("/register")
             req.logout();
             res.redirect("/");
         });
-
-
-
-
-
-
-
-
-// app.route("/").get().post().put().patch().delete();
