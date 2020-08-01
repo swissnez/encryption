@@ -6,8 +6,8 @@ bodyParser = require("body-parser"),
 ejs =  require("ejs"),
 mongoose = require("mongoose"),
 encrypt = require("mongoose-encryption"),
-bcrypt = require("bcrypt"),
-saltRounds = 10; //used with bcrypt
+
+
 User = require("./models/user");
 const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
 const findOrCreate = require("mongoose-findorcreate");
@@ -79,13 +79,12 @@ mongoose.set("useCreateIndex",true); // fixes issues with depreciation in consol
 
 passport.use(User.createStrategy());
 
-
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done)=> {
     done(null, user.id);
   });
   
-  passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
+  passport.deserializeUser((id, done)=> {
+    User.findById(id, (err, user)=> {
       done(err, user);
     });
   });
@@ -128,23 +127,6 @@ app.route("/login")
             });
         }
     });
-    // User.findOne({email:user.username},(err,found)=>{
-    //     if(!found) {
-    //         console.log(user.username);
-    //         res.send("account doesn't exist");
-    //     } else {
-    //         if(found) {
-    //             bcrypt.compare(password,found.password,(err,result)=>{
-    //                 if(result === true) {
-    //                     console.log(found);
-    //                     res.render("secrets");
-    //                 } else {
-    //                     res.send("Wrong password!");
-    //                 }
-    //             });
-    //         } 
-    //     }
-    // });
 });
 
 
@@ -180,18 +162,6 @@ app.route("/register")
                 });
             }
         });
-
-        // bcrypt.hash(password,saltRounds,(err,hash)=>{
-        //     const newUser = new User({
-        //         email: username,
-        //         password: hash
-        //     });
-        //     newUser.save((err)=>{
-        //         if(!err) {
-        //             res.render("secrets");
-        //         }
-        //     });
-        // });
         
     });
 
