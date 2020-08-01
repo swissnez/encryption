@@ -6,13 +6,16 @@ bodyParser = require("body-parser"),
 ejs =  require("ejs"),
 mongoose = require("mongoose"),
 encrypt = require("mongoose-encryption"),
-bcrypt = require("bcrypt");
-const saltRounds = 10; //used with bcrypt
+bcrypt = require("bcrypt"),
+saltRounds = 10; //used with bcrypt
+User = require("./models/user");
+const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
+const findOrCreate = require("mongoose-findorcreate");
 
-const User = require("./models/user");
+
 const session = require("express-session");
 const passport = require("passport");
-const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 
 const app = express();
@@ -35,12 +38,13 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
     clientID:     process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/secrets", // Authorised redirect URIs
+    callbackURL: "http://localhost:5000/auth/google/secrets", 
     passReqToCallback   : true,
     userProfileURL: ""
   },
-  function(request, accessToken, refreshToken, profile, done) {
-    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+  (request, accessToken, refreshToken, profile, done)=> {
+      console.log(profile);
+    User.findOrCreate({ googleId: profile.id }, (err, user)=> {
       return done(err, user);
     });
   }
@@ -58,6 +62,18 @@ mongoose.set("useCreateIndex",true); // fixes issues with depreciation in consol
 
 //** SCHEMA / MODEL blueprint NOTE now imported via models/users.js  */
 
+
+// const UserSchema = new mongoose.Schema({
+//     email: {type:String,required: true},
+//     password: {type:String,required:true}
+// });
+
+// UserSchema.plugin(passportLocalMongoose);
+// UserSchema.plugin(findOrCreate);
+
+
+// const User = mongoose.model("User",UserSchema);
+
 // //userSchema.plugin(encrypt,{secret:process.env.SECRET,encryptedFields: ['password']});
 
 
@@ -68,6 +84,14 @@ passport.deserializeUser(User.deserializeUser());
 
 
 //*** ROUTES ***
+
+app.get("/auth/google",passport.authenticate("google",{scope:['profile']}));
+
+app.get("/auth/google/secrets",passport.authenticate("google",{failureRedirect: "/login"}),(req,res)=>{
+    console.log("SECRETS route enganged");
+    res.redirect("/");
+});
+
 
 
 app.get("/",(req,res)=>{
