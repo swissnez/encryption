@@ -4,8 +4,8 @@ const passportLocalMongoose = require("passport-local-mongoose"); // Creates Sal
 const findOrCreate = require("mongoose-findorcreate");
 
 const UserSchema = new mongoose.Schema({
-    email: {type:String,required: true},
-    password: {type:String,required:true}
+    email: {type:String,},
+    password: {type:String}
 });
 
 UserSchema.plugin(passportLocalMongoose);

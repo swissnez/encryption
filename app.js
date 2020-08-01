@@ -89,7 +89,7 @@ app.get("/auth/google",passport.authenticate("google",{scope:['profile']}));
 
 app.get("/auth/google/secrets",passport.authenticate("google",{failureRedirect: "/login"}),(req,res)=>{
     console.log("SECRETS route enganged");
-    res.redirect("/");
+    res.redirect("/secrets");
 });
 
 
