@@ -15,8 +15,8 @@ const findOrCreate = require("mongoose-findorcreate");
 
 const session = require("express-session");
 const passport = require("passport");
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
+const GoogleStrategy = require('passport-google-oauth20').Strategy,
+FacebookStrategy = require('passport-facebook').Strategy;
 
 const app = express();
 
@@ -52,27 +52,12 @@ passport.use(new GoogleStrategy({
 
 
 
-
-
 //*** SOCKET CONNECTIONS ***/
 mongoose.connect(`${process.env.REMOTE_URI}`,{useNewUrlParser:true, useUnifiedTopology:true}).catch((err)=>{console.log(err)});
 const port = process.env.PORT_LOCAL || process.env.PORT; // Obtain port from .env file note PORT defaults with Heroku environment
 app.listen(port,console.log(`Server Started: ${port}`));
 mongoose.set("useCreateIndex",true); // fixes issues with depreciation in console/debug
 
-//** SCHEMA / MODEL blueprint NOTE now imported via models/users.js  */
-
-
-// const UserSchema = new mongoose.Schema({
-//     email: {type:String,required: true},
-//     password: {type:String,required:true}
-// });
-
-// UserSchema.plugin(passportLocalMongoose);
-// UserSchema.plugin(findOrCreate);
-
-
-// const User = mongoose.model("User",UserSchema);
 
 // //userSchema.plugin(encrypt,{secret:process.env.SECRET,encryptedFields: ['password']});
 
@@ -93,12 +78,17 @@ passport.serializeUser((user, done)=> {
 
 //*** ROUTES ***
 
+
+
+//** GOOGLE ROUTES  */
+
 app.get("/auth/google",passport.authenticate("google",{scope:['profile']}));
 
 app.get("/auth/google/secrets",passport.authenticate("google",{failureRedirect: "/login"}),(req,res)=>{
-    console.log("SECRETS route enganged");
     res.redirect("/secrets");
 });
+
+//** FACEBOOK ROUTES */
 
 
 
@@ -137,6 +127,33 @@ app.route("/secrets")
         } else {
             res.redirect("/login");
         }
+    });
+
+app.route("/submit")
+    .get((req,res)=>{
+        if(req.isAuthenticated()) { 
+            res.render("submit");
+        } else {
+            res.redirect("/login");
+        }
+    })
+    .post((req,res)=>{
+        const secret = req.body.secret;
+        console.log(req.user.id); // req.user obtains a default user session (Via passport) info built into the browser cache/session
+
+        User.findById(req.user.id,(err,foundUser)=>{
+            if(err) {
+                console.log(err);
+            } else {
+                if(foundUser) {
+                    foundUser.secret = secret;
+                    foundUser.save((err)=>{
+                        res.redirect("/secrets");
+                    });
+                }
+            }
+        });
+        
     });
 
 
