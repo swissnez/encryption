@@ -1,6 +1,5 @@
 //jshint esversion:6
 require('dotenv').config();
-const md5 = require("md5");
 const express = require("express"),
 bodyParser = require("body-parser"),
 ejs =  require("ejs"),
@@ -9,8 +8,6 @@ encrypt = require("mongoose-encryption"),
 
 
 User = require("./models/user");
-const passportLocalMongoose = require("passport-local-mongoose"); // Creates Salts and Hash strings
-const findOrCreate = require("mongoose-findorcreate");
 
 
 const session = require("express-session");
@@ -123,10 +120,14 @@ app.route("/login")
 app.route("/secrets")
 
     .get((req,res)=>{
-        if(req.isAuthenticated()) { res.render("secrets"); 
-        } else {
-            res.redirect("/login");
-        }
+        User.find({"secret":{$ne:null}},(err,foundUsers)=>{
+            if(err) {
+                console.log(err);
+            } else {
+                console.log(foundUsers);
+                res.render("secrets",{usersWithSecrets:foundUsers});
+            }
+        });
     });
 
 app.route("/submit")

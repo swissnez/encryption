@@ -10,8 +10,8 @@ const UserSchema = new mongoose.Schema({
     secret: String
 });
 
-UserSchema.plugin(passportLocalMongoose);
-UserSchema.plugin(findOrCreate);
+UserSchema.plugin(passportLocalMongoose); // Creates Salts and Hash strings, check mongodb fields populated
+UserSchema.plugin(findOrCreate); // Third party NPM package :) find or creates users 
 
 module.exports = mongoose.model("User",UserSchema);
 
